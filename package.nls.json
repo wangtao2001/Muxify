@@ -1,0 +1,25 @@
+{
+  "extension.displayName": "Muxify",
+  "extension.description": "Visualize and manage tmux sessions, windows and panes in VSCode sidebar",
+  "viewsContainer.title": "Muxify",
+  "view.sessions.name": "Tmux Sessions",
+  "command.refresh": "Refresh",
+  "command.createSession": "New Session",
+  "command.deleteSession": "Delete Session",
+  "command.renameSession": "Rename Session",
+  "command.attachSession": "Attach to Terminal",
+  "command.createWindow": "New Window",
+  "command.deleteWindow": "Delete Window",
+  "command.renameWindow": "Rename Window",
+  "command.selectWindow": "Switch to Window",
+  "command.selectPane": "Switch to Pane",
+  "command.splitPaneHorizontal": "Split Horizontal",
+  "command.splitPaneVertical": "Split Vertical",
+  "command.killPane": "Close Pane",
+  "command.enableMouseMode": "Enable Mouse Scroll",
+  "command.disableMouseMode": "Disable Mouse Scroll",
+  "command.addConnection": "Add SSH Connection",
+  "command.removeConnection": "Remove Connection",
+  "command.editConnection": "Edit Connection"
+}
+

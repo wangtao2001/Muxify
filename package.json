@@ -1,0 +1,260 @@
+{
+  "name": "Muxify",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "version": "0.1.0",
+  "publisher": "wangtao2001",
+  "license": "MIT",
+  "icon": "resources/icons/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangtao2001/Muxify"
+  },
+  "bugs": {
+    "url": "https://github.com/wangtao2001/Muxify/issues"
+  },
+  "homepage": "https://github.com/wangtao2001/Muxify#readme",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "tmux",
+    "terminal",
+    "ssh",
+    "session",
+    "multiplexer"
+  ],
+  "main": "./dist/extension.js",
+  "l10n": "./l10n",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "muxify",
+          "title": "%viewsContainer.title%",
+          "icon": "resources/icons/tmux.svg"
+        }
+      ]
+    },
+    "views": {
+      "muxify": [
+        {
+          "id": "muxify.sessions",
+          "name": "%view.sessions.name%"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "muxify.refresh",
+        "title": "%command.refresh%",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "muxify.createSession",
+        "title": "%command.createSession%",
+        "icon": "$(add)"
+      },
+      {
+        "command": "muxify.deleteSession",
+        "title": "%command.deleteSession%",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "muxify.renameSession",
+        "title": "%command.renameSession%"
+      },
+      {
+        "command": "muxify.attachSession",
+        "title": "%command.attachSession%"
+      },
+      {
+        "command": "muxify.createWindow",
+        "title": "%command.createWindow%",
+        "icon": "$(add)"
+      },
+      {
+        "command": "muxify.deleteWindow",
+        "title": "%command.deleteWindow%"
+      },
+      {
+        "command": "muxify.renameWindow",
+        "title": "%command.renameWindow%"
+      },
+      {
+        "command": "muxify.selectWindow",
+        "title": "%command.selectWindow%"
+      },
+      {
+        "command": "muxify.selectPane",
+        "title": "%command.selectPane%"
+      },
+      {
+        "command": "muxify.splitPaneHorizontal",
+        "title": "%command.splitPaneHorizontal%"
+      },
+      {
+        "command": "muxify.splitPaneVertical",
+        "title": "%command.splitPaneVertical%"
+      },
+      {
+        "command": "muxify.killPane",
+        "title": "%command.killPane%"
+      },
+      {
+        "command": "muxify.enableMouseMode",
+        "title": "%command.enableMouseMode%",
+        "icon": "$(screen-full)"
+      },
+      {
+        "command": "muxify.disableMouseMode",
+        "title": "%command.disableMouseMode%",
+        "icon": "$(screen-normal)"
+      },
+      {
+        "command": "muxify.addConnection",
+        "title": "%command.addConnection%",
+        "icon": "$(add)"
+      },
+      {
+        "command": "muxify.removeConnection",
+        "title": "%command.removeConnection%"
+      },
+      {
+        "command": "muxify.editConnection",
+        "title": "%command.editConnection%"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "muxify.refresh",
+          "when": "view == muxify.sessions",
+          "group": "navigation"
+        },
+        {
+          "command": "muxify.createSession",
+          "when": "view == muxify.sessions",
+          "group": "navigation"
+        },
+        {
+          "command": "muxify.addConnection",
+          "when": "view == muxify.sessions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "muxify.attachSession",
+          "when": "view == muxify.sessions && viewItem == session",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "muxify.renameSession",
+          "when": "view == muxify.sessions && viewItem == session",
+          "group": "2_modify@1"
+        },
+        {
+          "command": "muxify.createWindow",
+          "when": "view == muxify.sessions && viewItem == session",
+          "group": "2_modify@2"
+        },
+        {
+          "command": "muxify.deleteSession",
+          "when": "view == muxify.sessions && viewItem == session",
+          "group": "3_delete@1"
+        },
+        {
+          "command": "muxify.selectWindow",
+          "when": "view == muxify.sessions && viewItem == window",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "muxify.renameWindow",
+          "when": "view == muxify.sessions && viewItem =~ /^(window|activeWindow)$/",
+          "group": "2_modify@1"
+        },
+        {
+          "command": "muxify.splitPaneHorizontal",
+          "when": "view == muxify.sessions && viewItem =~ /^(window|activeWindow)$/",
+          "group": "2_modify@2"
+        },
+        {
+          "command": "muxify.splitPaneVertical",
+          "when": "view == muxify.sessions && viewItem =~ /^(window|activeWindow)$/",
+          "group": "2_modify@3"
+        },
+        {
+          "command": "muxify.deleteWindow",
+          "when": "view == muxify.sessions && viewItem =~ /^(window|activeWindow)$/",
+          "group": "3_delete@1"
+        },
+        {
+          "command": "muxify.selectPane",
+          "when": "view == muxify.sessions && viewItem == pane",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "muxify.splitPaneHorizontal",
+          "when": "view == muxify.sessions && viewItem =~ /^(pane|activePane)$/",
+          "group": "2_modify@1"
+        },
+        {
+          "command": "muxify.splitPaneVertical",
+          "when": "view == muxify.sessions && viewItem =~ /^(pane|activePane)$/",
+          "group": "2_modify@2"
+        },
+        {
+          "command": "muxify.killPane",
+          "when": "view == muxify.sessions && viewItem =~ /^(pane|activePane)$/",
+          "group": "3_delete@1"
+        },
+        {
+          "command": "muxify.enableMouseMode",
+          "when": "view == muxify.sessions && viewItem =~ /^(localConnection|sshConnection)$/",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "muxify.disableMouseMode",
+          "when": "view == muxify.sessions && viewItem =~ /^(localConnection|sshConnection)$/",
+          "group": "1_actions@2"
+        },
+        {
+          "command": "muxify.editConnection",
+          "when": "view == muxify.sessions && viewItem == sshConnection",
+          "group": "2_modify@1"
+        },
+        {
+          "command": "muxify.removeConnection",
+          "when": "view == muxify.sessions && viewItem == sshConnection",
+          "group": "3_delete@1"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/ssh2": "^1.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "esbuild": "^0.19.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "ssh2": "^1.15.0"
+  },
+  "bundledDependencies": [
+    "ssh2"
+  ]
+}
