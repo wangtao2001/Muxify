@@ -77,6 +77,21 @@
 - `tmux` installed on local machine or remote server
 - For SSH: Remote server must have `tmux` installed
 
+### Development
+
+To run this project locally for development:
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/wangtao2001/Muxify.git
+   ```
+2. Install dependencies
+   ```bash
+   npm i
+   ```
+3. Open the project in VSCode or Cursor
+4. Press `F5` to start debugging
+
 ### Known Issues
 
 - SSH password is not persisted (for security reasons)
