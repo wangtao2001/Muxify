@@ -30,6 +30,10 @@
 
 ### Installation
 
+**Download:**
+- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wangtao2001.Muxify)
+- [Open VSX Registry](https://open-vsx.org/extension/wangtao2001/Muxify)
+
 1. Install from VSCode Marketplace or download the `.vsix` file
 2. Make sure `tmux` is installed on your local machine or remote server
 3. Click the Muxify icon in the activity bar to get started
