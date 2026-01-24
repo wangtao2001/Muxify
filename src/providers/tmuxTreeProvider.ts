@@ -343,7 +343,7 @@ export class TmuxTreeProvider implements vscode.TreeDataProvider<TmuxTreeItem> {
                     node.command = {
                         command: 'muxify.selectPane',
                         title: vscode.l10n.t('Switch to Pane'),
-                        arguments: [node]
+                        arguments: [{ connectionId: window.connectionId, paneId: pane.id }]
                     };
                 }
 

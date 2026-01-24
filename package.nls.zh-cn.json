@@ -16,8 +16,9 @@
   "command.splitPaneHorizontal": "水平分割面板",
   "command.splitPaneVertical": "垂直分割面板",
   "command.killPane": "关闭面板",
-  "command.enableMouseMode": "启用鼠标滚动",
-  "command.disableMouseMode": "禁用鼠标滚动",
+  "command.swapPane": "交换面板位置",
+  "command.resizePane": "调整面板大小",
+  "command.toggleMouseMode": "切换鼠标模式",
   "command.addConnection": "添加 SSH 连接",
   "command.removeConnection": "移除连接",
   "command.editConnection": "编辑连接"

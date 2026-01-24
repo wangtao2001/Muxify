@@ -1,102 +1,38 @@
 # Muxify
 
-**Muxify** is a VSCode extension that allows you to visually manage tmux sessions, windows, and panes directly from the sidebar - no need to memorize complex tmux commands.
+**Muxify** is a VSCode extension for visually managing tmux sessions, windows, and panes - no commands to memorize.
 
-### Features
+## Features
 
-#### Session Management
-- **Create Session**: Create new tmux sessions with custom names
-- **Delete Session**: Remove sessions you no longer need
-- **Rename Session**: Give sessions meaningful names
-- **Attach to Terminal**: Open a VSCode terminal attached to the session
+- **Visual tmux management** - Create, rename, delete sessions/windows/panes with right-click menus
+- **Split & resize panes** - Horizontal/vertical splits and size adjustments
+- **SSH remote support** - Manage tmux on remote servers with password or key authentication
+- **SSH config import** - Quick-add hosts from `~/.ssh/config`
+- **Status bar integration** - See active session at a glance
+- **Mouse mode toggle** - Enable/disable mouse scrolling with one click
 
-#### Window Management
-- **Create Window**: Add new windows to a session
-- **Delete Window**: Remove windows from a session
-- **Rename Window**: Give windows descriptive names
-- **Switch Window**: Quickly switch between windows (right-click on inactive windows)
+## Installation
 
-#### Pane Management
-- **Split Horizontal**: Split the current pane horizontally
-- **Split Vertical**: Split the current pane vertically
-- **Switch Pane**: Double-click on inactive panes to switch
-- **Close Pane**: Close panes you no longer need
+Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wangtao2001.Muxify) or [Open VSX](https://open-vsx.org/extension/wangtao2001/Muxify).
 
-#### SSH Remote Support
-- **Add SSH Connection**: Connect to tmux on remote servers
-- **Password Authentication**: Support password-based SSH login
-- **Private Key Authentication**: Support SSH key-based authentication
-- **Edit/Remove Connection**: Manage your SSH connections
+**Requirements:** `tmux` installed on local machine or remote server.
 
-### Installation
+## Quick Start
 
-**Download:**
-- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wangtao2001.Muxify)
-- [Open VSX Registry](https://open-vsx.org/extension/wangtao2001/Muxify)
+1. Click the Muxify icon in the activity bar
+2. Expand "Local" to view existing sessions
+3. Use `+` buttons to create sessions or add SSH connections
+4. Right-click on any item for available actions
+5. Double-click inactive panes to switch
 
-1. Install from VSCode Marketplace or download the `.vsix` file
-2. Make sure `tmux` is installed on your local machine or remote server
-3. Click the Muxify icon in the activity bar to get started
+## Development
 
-### Usage
+```bash
+git clone https://github.com/wangtao2001/Muxify.git
+cd Muxify && npm i
+# Press F5 in VSCode to debug
+```
 
-#### Basic Operations
-
-| Action | How to |
-|--------|--------|
-| View sessions | Expand the "Local" node in the sidebar |
-| Create session | Click the `+` button in the title bar |
-| Attach to session | Right-click session → "Attach to Terminal" |
-| Create window | Right-click session → "New Window" |
-| Split pane | Right-click window/pane → "Split Horizontal/Vertical" |
-| Switch pane | Double-click on inactive pane |
-| Add SSH connection | Click the `+` button in the title bar |
-
-#### Context Menu Options
-
-**Session:**
-- Attach to Terminal
-- Rename Session
-- New Window
-- Delete Session
-
-**Window (inactive):**
-- Switch to Window
-- Rename Window
-- Split Horizontal/Vertical
-- Delete Window
-
-**Pane:**
-- Switch to Pane (inactive only)
-- Split Horizontal/Vertical
-- Close Pane
-
-### Requirements
-
-- VSCode 1.85.0 or higher
-- `tmux` installed on local machine or remote server
-- For SSH: Remote server must have `tmux` installed
-
-### Development
-
-To run this project locally for development:
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/wangtao2001/Muxify.git
-   ```
-2. Install dependencies
-   ```bash
-   npm i
-   ```
-3. Open the project in VSCode or Cursor
-4. Press `F5` to start debugging
-
-### Known Issues
-
-- SSH password is not persisted (for security reasons)
-- SSH connection may timeout after long periods of inactivity
-
-### License
+## License
 
 [MIT](LICENSE)

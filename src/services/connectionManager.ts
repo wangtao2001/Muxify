@@ -152,12 +152,16 @@ export class ConnectionManager {
     private connections: Map<string, Connection> = new Map();
     private executors: Map<string, CommandExecutor> = new Map();
     private context: vscode.ExtensionContext;
+    private secrets: vscode.SecretStorage;
 
     private static readonly LOCAL_CONNECTION_ID = 'local';
     private static readonly CONNECTIONS_STORAGE_KEY = 'muxify.connections';
+    private static readonly PASSWORD_PREFIX = 'muxify.ssh.password.';
+    private static readonly PASSPHRASE_PREFIX = 'muxify.ssh.passphrase.';
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
+        this.secrets = context.secrets;
         this.initializeLocalConnection();
         this.loadConnections();
     }
@@ -224,6 +228,22 @@ export class ConnectionManager {
      * 添加 SSH 连接
      */
     async addSSHConnection(config: SSHConnectionConfig): Promise<Connection> {
+        // 安全存储密码
+        if (config.password) {
+            await this.secrets.store(
+                ConnectionManager.PASSWORD_PREFIX + config.id,
+                config.password
+            );
+        }
+
+        // 安全存储私钥密码
+        if (config.passphrase) {
+            await this.secrets.store(
+                ConnectionManager.PASSPHRASE_PREFIX + config.id,
+                config.passphrase
+            );
+        }
+
         const connection: Connection = {
             id: config.id,
             type: 'ssh',
@@ -235,6 +255,20 @@ export class ConnectionManager {
         this.saveConnections();
 
         return connection;
+    }
+
+    /**
+     * 获取存储的密码
+     */
+    async getStoredPassword(connectionId: string): Promise<string | undefined> {
+        return this.secrets.get(ConnectionManager.PASSWORD_PREFIX + connectionId);
+    }
+
+    /**
+     * 获取存储的私钥密码
+     */
+    async getStoredPassphrase(connectionId: string): Promise<string | undefined> {
+        return this.secrets.get(ConnectionManager.PASSPHRASE_PREFIX + connectionId);
     }
 
     /**
@@ -267,7 +301,7 @@ export class ConnectionManager {
     /**
      * 移除连接
      */
-    removeConnection(id: string): void {
+    async removeConnection(id: string): Promise<void> {
         if (id === ConnectionManager.LOCAL_CONNECTION_ID) {
             throw new Error('不能移除本地连接');
         }
@@ -277,6 +311,10 @@ export class ConnectionManager {
             executor.dispose();
             this.executors.delete(id);
         }
+
+        // 清除存储的密码
+        await this.secrets.delete(ConnectionManager.PASSWORD_PREFIX + id);
+        await this.secrets.delete(ConnectionManager.PASSPHRASE_PREFIX + id);
 
         this.connections.delete(id);
         this.saveConnections();
@@ -305,7 +343,24 @@ export class ConnectionManager {
         }
 
         if (connection.type === 'ssh' && connection.config) {
-            const executor = new SSHExecutor(connection.config);
+            // 从 SecretStorage 获取密码
+            const config = { ...connection.config };
+            
+            if (config.authType === 'password' && !config.password) {
+                const storedPassword = await this.getStoredPassword(connectionId);
+                if (storedPassword) {
+                    config.password = storedPassword;
+                }
+            }
+
+            if (config.authType === 'privateKey' && !config.passphrase) {
+                const storedPassphrase = await this.getStoredPassphrase(connectionId);
+                if (storedPassphrase) {
+                    config.passphrase = storedPassphrase;
+                }
+            }
+
+            const executor = new SSHExecutor(config);
             await executor.connect();
             this.executors.set(connectionId, executor);
             return executor;

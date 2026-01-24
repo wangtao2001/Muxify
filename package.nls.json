@@ -16,8 +16,9 @@
   "command.splitPaneHorizontal": "Split Horizontal",
   "command.splitPaneVertical": "Split Vertical",
   "command.killPane": "Close Pane",
-  "command.enableMouseMode": "Enable Mouse Scroll",
-  "command.disableMouseMode": "Disable Mouse Scroll",
+  "command.swapPane": "Swap Pane",
+  "command.resizePane": "Resize Pane",
+  "command.toggleMouseMode": "Toggle Mouse Mode",
   "command.addConnection": "Add SSH Connection",
   "command.removeConnection": "Remove Connection",
   "command.editConnection": "Edit Connection"

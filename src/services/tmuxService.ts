@@ -327,6 +327,37 @@ export class TmuxService {
     }
 
     /**
+     * 交换面板位置
+     * direction: U(上一个), D(下一个)
+     */
+    async swapPane(connectionId: string, paneId: string, direction: 'U' | 'D'): Promise<void> {
+        const result = await this.connectionManager.execute(
+            connectionId,
+            `tmux swap-pane -t "${paneId}" -${direction}`
+        );
+
+        if (result.exitCode !== 0) {
+            throw new Error(result.stderr || '交换面板失败');
+        }
+    }
+
+    /**
+     * 调整面板大小
+     * direction: U(上), D(下), L(左), R(右)
+     * amount: 调整的行/列数
+     */
+    async resizePane(connectionId: string, paneId: string, direction: 'U' | 'D' | 'L' | 'R', amount: number = 5): Promise<void> {
+        const result = await this.connectionManager.execute(
+            connectionId,
+            `tmux resize-pane -t "${paneId}" -${direction} ${amount}`
+        );
+
+        if (result.exitCode !== 0) {
+            throw new Error(result.stderr || '调整面板大小失败');
+        }
+    }
+
+    /**
      * 附加到会话（生成 tmux attach 命令）
      */
     getAttachCommand(sessionName: string): string {
@@ -342,6 +373,22 @@ export class TmuxService {
             `tmux show-options -g mouse 2>/dev/null | grep -q "on" && echo "enabled" || echo "disabled"`
         );
         return result.stdout.trim() === 'enabled';
+    }
+
+    /**
+     * 切换鼠标模式（智能切换）
+     * 会检测当前状态并切换，同时修改 ~/.tmux.conf
+     */
+    async toggleMouseMode(connectionId: string): Promise<boolean> {
+        const isEnabled = await this.isMouseModeEnabled(connectionId);
+        
+        if (isEnabled) {
+            await this.disableMouseMode(connectionId);
+            return false;
+        } else {
+            await this.enableMouseMode(connectionId);
+            return true;
+        }
     }
 
     /**
@@ -368,7 +415,7 @@ export class TmuxService {
         }
 
         // 重新加载 tmux 配置
-        const reloadResult = await this.connectionManager.execute(
+        await this.connectionManager.execute(
             connectionId,
             `tmux source-file ~/.tmux.conf 2>/dev/null || true`
         );
