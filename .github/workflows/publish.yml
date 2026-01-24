@@ -7,7 +7,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,3 +25,17 @@ jobs:
 
       - name: Publish to Open VSX
         run: npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
+
+      - name: Build VSIX and upload to Release
+        run: |
+          npm run build
+          mkdir -p release
+          npx @vscode/vsce package --allow-missing-repository --out release
+          VERSION=$(node -p "require('./package.json').version")
+          if gh release view "v${VERSION}" > /dev/null 2>&1; then
+            gh release upload "v${VERSION}" release/*.vsix --clobber
+          else
+            gh release create "v${VERSION}" release/*.vsix --title "v${VERSION}" --generate-notes
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
