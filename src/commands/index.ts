@@ -126,10 +126,9 @@ export function registerCommands(
             if (connection?.type === 'ssh' && connection.config) {
                 const sshCmd = `ssh -t ${connection.config.username}@${connection.config.host} -p ${connection.config.port} "${attachCmd}"`;
                 terminal = vscode.window.createTerminal({
-                    name: `tmux: ${item.data.session.name}`,
-                    shellPath: '/bin/bash',
-                    shellArgs: ['-c', sshCmd]
+                    name: `tmux: ${item.data.session.name}`
                 });
+                terminal.sendText(sshCmd);
             } else {
                 terminal = vscode.window.createTerminal({
                     name: `tmux: ${item.data.session.name}`
