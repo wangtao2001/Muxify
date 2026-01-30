@@ -30,7 +30,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // 注册树视图
     const treeView = vscode.window.createTreeView('muxify.sessions', {
         treeDataProvider: treeProvider,
-        showCollapseAll: true
+        showCollapseAll: true,
+        canSelectMany: true  // 启用多选，支持 Ctrl+Click 和 Shift+Click
     });
 
     context.subscriptions.push(treeView);

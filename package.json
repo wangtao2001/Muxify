@@ -2,7 +2,7 @@
   "name": "Muxify",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "wangtao2001",
   "license": "MIT",
   "icon": "resources/icons/icon.png",

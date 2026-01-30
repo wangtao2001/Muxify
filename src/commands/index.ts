@@ -339,16 +339,43 @@ export function registerCommands(
         })
     );
 
-    // 关闭面板
+    // 关闭面板（支持多选批量删除）
     context.subscriptions.push(
-        vscode.commands.registerCommand('muxify.killPane', async (item: TmuxTreeItem) => {
-            if (!item.data.pane) {
+        vscode.commands.registerCommand('muxify.killPane', async (item: TmuxTreeItem, selectedItems?: TmuxTreeItem[]) => {
+            // 获取要删除的面板列表
+            // 如果有多选，使用选中的项；否则使用单击的项
+            const panesToKill: TmuxTreeItem[] = [];
+            
+            if (selectedItems && selectedItems.length > 1) {
+                // 多选模式：筛选出所有面板类型的项
+                for (const selected of selectedItems) {
+                    if (selected.data.pane) {
+                        panesToKill.push(selected);
+                    }
+                }
+            } else if (item.data.pane) {
+                // 单选模式
+                panesToKill.push(item);
+            }
+
+            if (panesToKill.length === 0) {
                 return;
             }
 
             const closeBtn = vscode.l10n.t('Close');
+            let confirmMessage: string;
+            
+            if (panesToKill.length === 1) {
+                // 单个面板
+                confirmMessage = vscode.l10n.t('Are you sure you want to close pane {0}?', panesToKill[0].data.pane!.index);
+            } else {
+                // 多个面板
+                const paneIndices = panesToKill.map(p => p.data.pane!.index).join(', ');
+                confirmMessage = vscode.l10n.t('Are you sure you want to close {0} panes ({1})?', panesToKill.length, paneIndices);
+            }
+
             const confirm = await vscode.window.showWarningMessage(
-                vscode.l10n.t('Are you sure you want to close pane {0}?', item.data.pane.index),
+                confirmMessage,
                 { modal: true },
                 closeBtn
             );
@@ -357,13 +384,37 @@ export function registerCommands(
                 return;
             }
 
-            try {
-                await tmuxService.killPane(item.data.connectionId, item.data.pane.id);
-                vscode.window.showInformationMessage(vscode.l10n.t('Pane closed'));
-                treeProvider.refresh();
-            } catch (error) {
-                vscode.window.showErrorMessage(
-                    vscode.l10n.t('Failed to close pane: {0}', String(error))
+            // 按面板ID倒序排列，从后往前删除，避免ID变化问题
+            panesToKill.sort((a, b) => {
+                const aIndex = parseInt(a.data.pane!.id.split('.').pop() || '0');
+                const bIndex = parseInt(b.data.pane!.id.split('.').pop() || '0');
+                return bIndex - aIndex;
+            });
+
+            let successCount = 0;
+            let failedCount = 0;
+
+            for (const paneItem of panesToKill) {
+                try {
+                    await tmuxService.killPane(paneItem.data.connectionId, paneItem.data.pane!.id);
+                    successCount++;
+                } catch (error) {
+                    failedCount++;
+                    console.error(`Failed to close pane ${paneItem.data.pane!.id}:`, error);
+                }
+            }
+
+            treeProvider.refresh();
+
+            if (failedCount === 0) {
+                if (successCount === 1) {
+                    vscode.window.showInformationMessage(vscode.l10n.t('Pane closed'));
+                } else {
+                    vscode.window.showInformationMessage(vscode.l10n.t('{0} panes closed', successCount));
+                }
+            } else {
+                vscode.window.showWarningMessage(
+                    vscode.l10n.t('{0} panes closed, {1} failed', successCount, failedCount)
                 );
             }
         })
