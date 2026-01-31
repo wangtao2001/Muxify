@@ -2,7 +2,7 @@
   "name": "Muxify",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "wangtao2001",
   "license": "MIT",
   "icon": "resources/icons/icon.png",
@@ -52,6 +52,11 @@
         "command": "muxify.refresh",
         "title": "%command.refresh%",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "muxify.toggleSortOrder",
+        "title": "%command.toggleSortOrder%",
+        "icon": "$(list-ordered)"
       },
       {
         "command": "muxify.createSession",
@@ -135,6 +140,11 @@
       "view/title": [
         {
           "command": "muxify.refresh",
+          "when": "view == muxify.sessions",
+          "group": "navigation"
+        },
+        {
+          "command": "muxify.toggleSortOrder",
           "when": "view == muxify.sessions",
           "group": "navigation"
         },

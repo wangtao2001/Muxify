@@ -4,6 +4,7 @@
   "viewsContainer.title": "Muxify",
   "view.sessions.name": "Tmux 会话",
   "command.refresh": "刷新",
+  "command.toggleSortOrder": "切换排序方式",
   "command.createSession": "新建会话",
   "command.deleteSession": "删除会话",
   "command.renameSession": "重命名会话",

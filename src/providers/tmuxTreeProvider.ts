@@ -78,6 +78,11 @@ export class TmuxTreeItem extends vscode.TreeItem {
 }
 
 /**
+ * 会话排序方式
+ */
+export type SessionSortOrder = 'name' | 'created';
+
+/**
  * Tmux 树数据提供者
  */
 export class TmuxTreeProvider implements vscode.TreeDataProvider<TmuxTreeItem> {
@@ -88,10 +93,37 @@ export class TmuxTreeProvider implements vscode.TreeDataProvider<TmuxTreeItem> {
     private tmuxService: TmuxService;
     private refreshTimer: NodeJS.Timeout | undefined;
     private autoRefreshInterval = 5000;
+    private _sortOrder: SessionSortOrder = 'name';
 
     constructor(connectionManager: ConnectionManager, tmuxService: TmuxService) {
         this.connectionManager = connectionManager;
         this.tmuxService = tmuxService;
+    }
+
+    /**
+     * 获取当前排序方式
+     */
+    get sortOrder(): SessionSortOrder {
+        return this._sortOrder;
+    }
+
+    /**
+     * 切换排序方式
+     */
+    toggleSortOrder(): SessionSortOrder {
+        this._sortOrder = this._sortOrder === 'name' ? 'created' : 'name';
+        this.refresh();
+        return this._sortOrder;
+    }
+
+    /**
+     * 设置排序方式
+     */
+    setSortOrder(order: SessionSortOrder): void {
+        if (this._sortOrder !== order) {
+            this._sortOrder = order;
+            this.refresh();
+        }
     }
 
     refresh(): void {
@@ -186,7 +218,7 @@ export class TmuxTreeProvider implements vscode.TreeDataProvider<TmuxTreeItem> {
                 return [node];
             }
 
-            const sessions = await this.tmuxService.listSessions(connectionId);
+            let sessions = await this.tmuxService.listSessions(connectionId);
 
             if (sessions.length === 0) {
                 const node = new TmuxTreeItem(
@@ -199,6 +231,17 @@ export class TmuxTreeProvider implements vscode.TreeDataProvider<TmuxTreeItem> {
                 );
                 node.iconPath = new vscode.ThemeIcon('info');
                 return [node];
+            }
+
+            // 根据排序方式排序会话
+            if (this._sortOrder === 'created') {
+                sessions = sessions.sort((a, b) => {
+                    const timeA = a.createdAt?.getTime() || 0;
+                    const timeB = b.createdAt?.getTime() || 0;
+                    return timeA - timeB;  // 按创建时间升序（最早的在前）
+                });
+            } else {
+                sessions = sessions.sort((a, b) => a.name.localeCompare(b.name));
             }
 
             return sessions.map(session => {

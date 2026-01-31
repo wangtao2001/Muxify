@@ -1,4 +1,6 @@
 {
+  "Sessions sorted by name": "Sessions sorted by name",
+  "Sessions sorted by creation time": "Sessions sorted by creation time",
   "(attached)": "(attached)",
   "(active)": "(active)",
   "Command: {0}\nPath: {1}\nSize: {2}x{3}": "Command: {0}\nPath: {1}\nSize: {2}x{3}",

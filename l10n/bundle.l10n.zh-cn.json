@@ -1,4 +1,6 @@
 {
+  "Sessions sorted by name": "会话按名称排序",
+  "Sessions sorted by creation time": "会话按创建时间排序",
   "(attached)": "(已附加)",
   "(active)": "(活动)",
   "Command: {0}\nPath: {1}\nSize: {2}x{3}": "命令: {0}\n路径: {1}\n大小: {2}x{3}",

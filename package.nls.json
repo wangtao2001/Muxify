@@ -4,6 +4,7 @@
   "viewsContainer.title": "Muxify",
   "view.sessions.name": "Tmux Sessions",
   "command.refresh": "Refresh",
+  "command.toggleSortOrder": "Toggle Sort Order",
   "command.createSession": "New Session",
   "command.deleteSession": "Delete Session",
   "command.renameSession": "Rename Session",

@@ -21,6 +21,18 @@ export function registerCommands(
         })
     );
 
+    // 切换排序方式
+    context.subscriptions.push(
+        vscode.commands.registerCommand('muxify.toggleSortOrder', () => {
+            const newOrder = treeProvider.toggleSortOrder();
+            if (newOrder === 'name') {
+                vscode.window.showInformationMessage(vscode.l10n.t('Sessions sorted by name'));
+            } else {
+                vscode.window.showInformationMessage(vscode.l10n.t('Sessions sorted by creation time'));
+            }
+        })
+    );
+
     // 创建会话
     context.subscriptions.push(
         vscode.commands.registerCommand('muxify.createSession', async (item?: TmuxTreeItem) => {
