@@ -9,6 +9,7 @@
   "command.deleteSession": "删除会话",
   "command.renameSession": "重命名会话",
   "command.attachSession": "附加到终端",
+  "command.quickAttach": "快速附加会话",
   "command.createWindow": "新建窗口",
   "command.deleteWindow": "删除窗口",
   "command.renameWindow": "重命名窗口",

@@ -24,8 +24,8 @@ export class StatusBarProvider {
             vscode.StatusBarAlignment.Left,
             100
         );
-        this.statusBarItem.command = 'muxify.sessions.focus';
-        this.statusBarItem.tooltip = vscode.l10n.t('Click to open Muxify sidebar');
+        this.statusBarItem.command = 'muxify.quickAttach';
+        this.statusBarItem.tooltip = vscode.l10n.t('Click to attach session to terminal');
     }
 
     /**

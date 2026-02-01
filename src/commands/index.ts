@@ -61,16 +61,40 @@ export function registerCommands(
         })
     );
 
-    // 删除会话
+    // 删除会话（支持多选批量删除）
     context.subscriptions.push(
-        vscode.commands.registerCommand('muxify.deleteSession', async (item: TmuxTreeItem) => {
-            if (!item.data.session) {
+        vscode.commands.registerCommand('muxify.deleteSession', async (item: TmuxTreeItem, selectedItems?: TmuxTreeItem[]) => {
+            // 获取要删除的会话列表
+            const sessionsToDelete: TmuxTreeItem[] = [];
+            
+            if (selectedItems && selectedItems.length > 1) {
+                // 多选模式：筛选出所有会话类型的项
+                for (const selected of selectedItems) {
+                    if (selected.data.session) {
+                        sessionsToDelete.push(selected);
+                    }
+                }
+            } else if (item.data.session) {
+                // 单选模式
+                sessionsToDelete.push(item);
+            }
+
+            if (sessionsToDelete.length === 0) {
                 return;
             }
 
             const deleteBtn = vscode.l10n.t('Delete');
+            let confirmMessage: string;
+            
+            if (sessionsToDelete.length === 1) {
+                confirmMessage = vscode.l10n.t('Are you sure you want to delete session "{0}"?', sessionsToDelete[0].data.session!.name);
+            } else {
+                const sessionNames = sessionsToDelete.map(s => s.data.session!.name).join(', ');
+                confirmMessage = vscode.l10n.t('Are you sure you want to delete {0} sessions ({1})?', sessionsToDelete.length, sessionNames);
+            }
+
             const confirm = await vscode.window.showWarningMessage(
-                vscode.l10n.t('Are you sure you want to delete session "{0}"?', item.data.session.name),
+                confirmMessage,
                 { modal: true },
                 deleteBtn
             );
@@ -79,15 +103,32 @@ export function registerCommands(
                 return;
             }
 
-            try {
-                await tmuxService.killSession(item.data.connectionId, item.data.session.name);
-                vscode.window.showInformationMessage(
-                    vscode.l10n.t('Session "{0}" deleted', item.data.session.name)
-                );
-                treeProvider.refresh();
-            } catch (error) {
-                vscode.window.showErrorMessage(
-                    vscode.l10n.t('Failed to delete session: {0}', String(error))
+            let successCount = 0;
+            let failedCount = 0;
+
+            for (const sessionItem of sessionsToDelete) {
+                try {
+                    await tmuxService.killSession(sessionItem.data.connectionId, sessionItem.data.session!.name);
+                    successCount++;
+                } catch (error) {
+                    failedCount++;
+                    console.error(`Failed to delete session ${sessionItem.data.session!.name}:`, error);
+                }
+            }
+
+            treeProvider.refresh();
+
+            if (failedCount === 0) {
+                if (successCount === 1) {
+                    vscode.window.showInformationMessage(
+                        vscode.l10n.t('Session "{0}" deleted', sessionsToDelete[0].data.session!.name)
+                    );
+                } else {
+                    vscode.window.showInformationMessage(vscode.l10n.t('{0} sessions deleted', successCount));
+                }
+            } else {
+                vscode.window.showWarningMessage(
+                    vscode.l10n.t('{0} sessions deleted, {1} failed', successCount, failedCount)
                 );
             }
         })
@@ -152,6 +193,84 @@ export function registerCommands(
         })
     );
 
+    // 快速附加会话（状态栏点击触发）
+    context.subscriptions.push(
+        vscode.commands.registerCommand('muxify.quickAttach', async () => {
+            // 获取所有连接
+            const connections = connectionManager.getAllConnections();
+            
+            interface SessionQuickPickItem extends vscode.QuickPickItem {
+                connectionId: string;
+                sessionName: string;
+                isSSH: boolean;
+                sshConfig?: SSHConnectionConfig;
+            }
+            
+            const items: SessionQuickPickItem[] = [];
+            
+            // 遍历所有连接获取会话
+            for (const connection of connections) {
+                try {
+                    const sessions = await tmuxService.listSessions(connection.id);
+                    
+                    for (const session of sessions) {
+                        const icon = session.attached ? '$(check)' : '$(terminal)';
+                        const connLabel = connection.type === 'local' 
+                            ? vscode.l10n.t('Local') 
+                            : connection.config?.host || connection.name;
+                        
+                        items.push({
+                            label: `${icon} ${session.name}`,
+                            description: `${session.windowCount} ${vscode.l10n.t('windows')}`,
+                            detail: connLabel,
+                            connectionId: connection.id,
+                            sessionName: session.name,
+                            isSSH: connection.type === 'ssh',
+                            sshConfig: connection.config
+                        });
+                    }
+                } catch (error) {
+                    // 跳过无法连接的连接
+                    console.error(`Failed to list sessions for ${connection.name}:`, error);
+                }
+            }
+            
+            if (items.length === 0) {
+                vscode.window.showInformationMessage(vscode.l10n.t('No active tmux sessions'));
+                return;
+            }
+            
+            const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: vscode.l10n.t('Select a session to attach'),
+                matchOnDescription: true,
+                matchOnDetail: true
+            });
+            
+            if (!selected) {
+                return;
+            }
+            
+            // 附加到选中的会话
+            const attachCmd = tmuxService.getAttachCommand(selected.sessionName);
+            let terminal: vscode.Terminal;
+            
+            if (selected.isSSH && selected.sshConfig) {
+                const sshCmd = `ssh -t ${selected.sshConfig.username}@${selected.sshConfig.host} -p ${selected.sshConfig.port} "${attachCmd}"`;
+                terminal = vscode.window.createTerminal({
+                    name: `tmux: ${selected.sessionName}`
+                });
+                terminal.sendText(sshCmd);
+            } else {
+                terminal = vscode.window.createTerminal({
+                    name: `tmux: ${selected.sessionName}`
+                });
+                terminal.sendText(attachCmd);
+            }
+            
+            terminal.show();
+        })
+    );
+
     // 创建窗口
     context.subscriptions.push(
         vscode.commands.registerCommand('muxify.createWindow', async (item: TmuxTreeItem) => {
@@ -180,16 +299,40 @@ export function registerCommands(
         })
     );
 
-    // 删除窗口
+    // 删除窗口（支持多选批量删除）
     context.subscriptions.push(
-        vscode.commands.registerCommand('muxify.deleteWindow', async (item: TmuxTreeItem) => {
-            if (!item.data.window || !item.data.session) {
+        vscode.commands.registerCommand('muxify.deleteWindow', async (item: TmuxTreeItem, selectedItems?: TmuxTreeItem[]) => {
+            // 获取要删除的窗口列表
+            const windowsToDelete: TmuxTreeItem[] = [];
+            
+            if (selectedItems && selectedItems.length > 1) {
+                // 多选模式：筛选出所有窗口类型的项
+                for (const selected of selectedItems) {
+                    if (selected.data.window && selected.data.session) {
+                        windowsToDelete.push(selected);
+                    }
+                }
+            } else if (item.data.window && item.data.session) {
+                // 单选模式
+                windowsToDelete.push(item);
+            }
+
+            if (windowsToDelete.length === 0) {
                 return;
             }
 
             const deleteBtn = vscode.l10n.t('Delete');
+            let confirmMessage: string;
+            
+            if (windowsToDelete.length === 1) {
+                confirmMessage = vscode.l10n.t('Are you sure you want to delete window "{0}"?', windowsToDelete[0].data.window!.name);
+            } else {
+                const windowNames = windowsToDelete.map(w => w.data.window!.name).join(', ');
+                confirmMessage = vscode.l10n.t('Are you sure you want to delete {0} windows ({1})?', windowsToDelete.length, windowNames);
+            }
+
             const confirm = await vscode.window.showWarningMessage(
-                vscode.l10n.t('Are you sure you want to delete window "{0}"?', item.data.window.name),
+                confirmMessage,
                 { modal: true },
                 deleteBtn
             );
@@ -198,19 +341,39 @@ export function registerCommands(
                 return;
             }
 
-            try {
-                await tmuxService.killWindow(
-                    item.data.connectionId,
-                    item.data.session.name,
-                    item.data.window.index
-                );
-                vscode.window.showInformationMessage(
-                    vscode.l10n.t('Window "{0}" deleted', item.data.window.name)
-                );
-                treeProvider.refresh();
-            } catch (error) {
-                vscode.window.showErrorMessage(
-                    vscode.l10n.t('Failed to delete window: {0}', String(error))
+            // 按窗口索引倒序排列，从后往前删除，避免索引变化问题
+            windowsToDelete.sort((a, b) => b.data.window!.index - a.data.window!.index);
+
+            let successCount = 0;
+            let failedCount = 0;
+
+            for (const windowItem of windowsToDelete) {
+                try {
+                    await tmuxService.killWindow(
+                        windowItem.data.connectionId,
+                        windowItem.data.session!.name,
+                        windowItem.data.window!.index
+                    );
+                    successCount++;
+                } catch (error) {
+                    failedCount++;
+                    console.error(`Failed to delete window ${windowItem.data.window!.name}:`, error);
+                }
+            }
+
+            treeProvider.refresh();
+
+            if (failedCount === 0) {
+                if (successCount === 1) {
+                    vscode.window.showInformationMessage(
+                        vscode.l10n.t('Window "{0}" deleted', windowsToDelete[0].data.window!.name)
+                    );
+                } else {
+                    vscode.window.showInformationMessage(vscode.l10n.t('{0} windows deleted', successCount));
+                }
+            } else {
+                vscode.window.showWarningMessage(
+                    vscode.l10n.t('{0} windows deleted, {1} failed', successCount, failedCount)
                 );
             }
         })

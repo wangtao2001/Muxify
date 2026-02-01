@@ -25,14 +25,6 @@ Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?it
 4. Right-click on any item for available actions
 5. Double-click inactive panes to switch
 
-## Development
-
-```bash
-git clone https://github.com/wangtao2001/Muxify.git
-cd Muxify && npm i
-# Press F5 in VSCode to debug
-```
-
 ## License
 
 [MIT](LICENSE)

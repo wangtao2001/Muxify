@@ -9,6 +9,7 @@
   "command.deleteSession": "Delete Session",
   "command.renameSession": "Rename Session",
   "command.attachSession": "Attach to Terminal",
+  "command.quickAttach": "Quick Attach Session",
   "command.createWindow": "New Window",
   "command.deleteWindow": "Delete Window",
   "command.renameWindow": "Rename Window",

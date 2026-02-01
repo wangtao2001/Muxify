@@ -2,7 +2,7 @@
   "name": "Muxify",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "publisher": "wangtao2001",
   "license": "MIT",
   "icon": "resources/icons/icon.png",
@@ -29,6 +29,9 @@
   ],
   "main": "./dist/extension.js",
   "l10n": "./l10n",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -75,6 +78,10 @@
       {
         "command": "muxify.attachSession",
         "title": "%command.attachSession%"
+      },
+      {
+        "command": "muxify.quickAttach",
+        "title": "%command.quickAttach%"
       },
       {
         "command": "muxify.createWindow",
